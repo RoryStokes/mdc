@@ -32,7 +32,10 @@ units = []
 def addUnit(unit):
     event_manager.register("update", unit.update)
     units.append(unit)
-addUnit(Unit(5, 5))
+def addPlayer(unit):
+    addUnit(unit)
+    event_manager.register("rightClick", unit.pathTo)
+addPlayer(Unit(5, 5, map_board))
 
 renderer = render.Renderer(window, map_obstructions, units)
 event_manager.register("keyDown", renderer.moveAnchor)

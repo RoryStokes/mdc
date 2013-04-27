@@ -1,19 +1,21 @@
 from node import Node
 
 class Unit(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, board):
         super(Unit, self).__init__()
 
         self.x, self.y = float(x), float(y)
         self.target = Node(x, y)
         self.path = []
-        self.speed = 0.01
+        self.speed = 0.05
         self.dir = 0
+        self.board = board
 
-    def pathTo(self, board, node):
+    def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)
+        targetNode = Node(moveToPos[0], moveToPos[1])
 
-        self.path = board.get_shortest_path(currentNode, node)
+        self.path = self.board.get_shortest_path(currentNode, targetNode)
         self.target = self.path.pop(0)
 
     def update(self):

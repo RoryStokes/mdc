@@ -29,6 +29,13 @@ class Renderer:
 			if onScreen:
 				pygame.draw.polygon(self.window, pygame.Color(0,0,0), tempPoly)
 
+			for unit in self.units:
+				x = self.scale*(unit.x-self.anchor_x) + self.windowSize[0]/2
+				y = self.scale*(unit.y-self.anchor_y) + self.windowSize[1]/2
+				if x > 0 and x < self.windowSize[0] and y > 0 and y < self.windowSize[1]:
+					pygame.draw.circle(self.window, pygame.Color(255,0,0), (int(x), int(y)), int(self.scale * 0.5))
+
+
 	def toGlobalCoord(self,(x,y)):
 		x_disp = (x - self.windowSize[0]/2) * (32/self.windowSize[0])
 		y_disp = (y - self.windowSize[1]/2) * (32/self.windowSize[1])
