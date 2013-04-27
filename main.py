@@ -27,7 +27,13 @@ clock   = pygame.time.Clock()
 event_manager = event.Event()
 window   = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
-units = [Unit(5, 5)]
+
+units = []
+def addUnit(unit):
+    event_manager.register("update", unit.update)
+    units.append(unit)
+addUnit(Unit(5, 5))
+
 renderer = render.Renderer(window, map_obstructions, units)
 inputManager = inputs.InputManager(event_manager, renderer)
 renderer.setWindowSize((640,400))
