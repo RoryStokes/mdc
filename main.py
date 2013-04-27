@@ -30,7 +30,7 @@ pygame.display.set_caption("MDC")
 units = [Unit(5, 5)]
 renderer = render.Renderer(window, map_obstructions, units)
 event_manager.register("update", renderer.update)
-inputManager = inputs.InputManager(event, renderer)
+inputManager = inputs.InputManager(event_manager, renderer)
 
 while True: 
     event_manager.notify("update")
