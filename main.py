@@ -2,31 +2,33 @@ import geometry
 import mapping
 from node import Node
 import unittest
+import render, event
+import pygame
 
-top_left_inner = geometry.Polygon((4, 10), (10, 4), (10, 10),
-                               ccw=False)
-top_right_inner = geometry.Polygon((22,4), (28,10), (22,10),
-								ccw=False)
-bot_left_inner = geometry.Polygon((4,22), (10,28), (4,28),
-								ccw=False)
-bot_right_inner = geometry.Polygon((22,22), (28,22), (22,28),
-								ccw=False)
+map_obstructions = [
+[(4, 10), (10, 4), (10, 10)],		#top left inner
+[(22,4), (28,10), (22,10)],			#top right inner
+[(4,22), (10,22), (10,28)],			#bottom left inner
+[(22,22), (28,22), (22,28)],		#bottom right inner
+[(0,25),(8,32),(0,32)],				#top right outer
+[(25,0),(32,0),(32,8)],				#bottom left outer
+[(4,13),(28,13),(28,14),(4,14)],	#river top boundary
+[(4,18),(28,18),(28,19),(4,19)]]	#river bot boundary
 
-bot_left_outer = geometry.Polygon((0,25),(32,32),(0,32),
-								ccw=False)
-top_right_outer = geometry.Polygon((25,0),(32,0),(32,8),
-								ccw=False)
+map_board = mapping.Board()
 
-river_top = geometry.Polygon((0,13),(32,13),(32,14),(0,14),
-								ccw=False)
-river_bot = geometry.Polygon((0,18),(32,18),(32,19),(0,19),
-								ccw=False)
+for poly in map_obstructions:
+	map_board.add( geometry.Polygon(*poly, ccw=False) )
 
-terrain_map = mapping.Board()
+pygame.init()
+clock   = pygame.time.Clock()
+event_manager = event.Event()
+window   = pygame.display.set_mode((640,640),pygame.RESIZABLE)
+pygame.display.set_caption("MDC")
+renderer = render.Renderer(window, event_manager, map_obstructions)
 
-terrain_map.add(top_left_inner)
-terrain_map.add(top_right_inner)
-terrain_map.add(bot_left_inner)
-terrain_map.add(bot_right_inner)
-terrain_map.add(bot_left_outer)
-terrain_map.add(bot_right_outer)
+while True:	
+	event_manager.notify("update")
+	event_manager.update()
+	pygame.display.update()
+	clock.tick(30)
