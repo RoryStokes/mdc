@@ -9,6 +9,7 @@ class Renderer:
 		self.windowSize = (0,0)
 		self.map_obstructions = map_obstructions
 		self.units = units
+		self.scrollSpeed = 1
 		
 	def update(self):
 		#Draw background
@@ -34,3 +35,13 @@ class Renderer:
 
 	def setWindowSize(self,(x,y)):
 		self.windowSize = (x,y)
+
+	def moveAnchor(self, dir):
+		if dir == "up":
+			self.anchor[1] -= self.scrollSpeed
+		elif dir == "down":
+			self.anchor[1] += self.scrollSpeed
+		elif dir == "left":
+			self.anchor[0] -= self.scrollSpeed
+		elif dir == "right":
+			self.anchor[0] += self.scrollSpeed

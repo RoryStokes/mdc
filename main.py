@@ -35,6 +35,7 @@ def addUnit(unit):
 addUnit(Unit(5, 5))
 
 renderer = render.Renderer(window, map_obstructions, units)
+event_manager.register("keyDown", renderer.moveAnchor)
 inputManager = inputs.InputManager(event_manager, renderer)
 renderer.setWindowSize((640,400))
 

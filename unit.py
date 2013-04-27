@@ -7,7 +7,7 @@ class Unit(object):
         self.x, self.y = float(x), float(y)
         self.target = Node(x, y)
         self.path = []
-        self.speed = 2
+        self.speed = 0.01
         self.dir = 0
 
     def pathTo(self, board, node):
@@ -48,4 +48,4 @@ class Unit(object):
         return node in nodeList
 
     def pos(self):
-        return (int(self.x), int(self.y))
+        return (self.x, self.y)
