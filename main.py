@@ -25,11 +25,12 @@ for poly in map_obstructions:
 pygame.init()
 clock   = pygame.time.Clock()
 event_manager = event.Event()
-window   = pygame.display.set_mode((640,640),pygame.RESIZABLE)
+window   = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
 units = [Unit(5, 5)]
 renderer = render.Renderer(window, map_obstructions, units)
 inputManager = inputs.InputManager(event_manager, renderer)
+renderer.setWindowSize((640,400))
 
 while True: 
 
