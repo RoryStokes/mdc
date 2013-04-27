@@ -4,6 +4,7 @@ from node import Node
 import unittest
 import render, event
 import pygame
+from unit import Unit
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],		#top left inner
@@ -25,7 +26,9 @@ clock   = pygame.time.Clock()
 event_manager = event.Event()
 window   = pygame.display.set_mode((640,640),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
-renderer = render.Renderer(window, event_manager, map_obstructions)
+units = [Unit(5, 5)]
+renderer = render.Renderer(window, map_obstructions, units)
+event_manager.register("update", renderer.update)
 
 while True:	
 	event_manager.notify("update")
