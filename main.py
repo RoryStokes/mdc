@@ -10,8 +10,8 @@ map_obstructions = [
 [(22,4), (28,10), (22,10)],			#top right inner
 [(4,22), (10,22), (10,28)],			#bottom left inner
 [(22,22), (28,22), (22,28)],		#bottom right inner
-[(0,25),(8,32),(0,32)],				#top right outer
-[(25,0),(32,0),(32,8)],				#bottom left outer
+[(0,26),(6,32),(0,32)],				#bottom left outer
+[(26,0),(32,0),(32,6)],				#top right outer
 [(4,13),(28,13),(28,14),(4,14)],	#river top boundary
 [(4,18),(28,18),(28,19),(4,19)]]	#river bot boundary
 
