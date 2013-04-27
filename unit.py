@@ -1,11 +1,10 @@
 from node import Node
-import math
+import math, entity
 
-class Unit(object):
+class Unit(entity.Entity):
     def __init__(self, x, y, board):
-        super(Unit, self).__init__()
+        super(Unit, self).__init__(x, y, 100)
 
-        self.x, self.y = float(x), float(y)
         self.target = Node(x, y)
         self.path = []
         self.speed = 0.05
@@ -30,7 +29,7 @@ class Unit(object):
         dx = self.target.x - self.x
         dy = self.target.y - self.y
 
-        ds = math.sqrt(dx*dx + dy*dy)
+        ds = math.hypot(dx, dy)
 
         if ds > self.speed:
             self.x += self.speed * dx / ds
@@ -40,16 +39,3 @@ class Unit(object):
             self.y = self.target.y
             if len(self.path) > 0:
                 self.target = self.path.pop(0)
-
-    def visibleNodes(self, board):
-        currentNode = Node(self.x, self.y)
-        
-        return board.get_visible_set(currentNode)
-
-    def canSee(self, board, node):
-        nodeList = visibleNodes(board)
-
-        return node in nodeList
-
-    def pos(self):
-        return (self.x, self.y)
