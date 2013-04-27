@@ -4,7 +4,7 @@ from pygame.locals import *
 class Renderer:
 	def __init__(self,window,map_obstructions,units):
 		self.window = window
-		self.anchor = (32,32)
+		self.anchor = (16,16)
 		self.scale = 40
 		self.windowSize = (0,0)
 		self.map_obstructions = map_obstructions
