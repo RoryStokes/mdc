@@ -1,8 +1,8 @@
-import node
+from node import Node
 
 class Unit(object):
     def __init__(self, x, y):
-        super(Node, self).__init__()
+        super(Unit, self).__init__()
 
         self.x, self.y = float(x), float(y)
         self.dir = 0
@@ -14,10 +14,6 @@ class Unit(object):
 
         #Now do something with the path... perhaps move somewhere?
 
-    def draw(self):
-        #Draw the unit...
-        pass
-
     def visibleNodes(self, board):
         currentNode = Node(self.x, self.y)
         
@@ -27,3 +23,6 @@ class Unit(object):
         nodeList = visibleNodes(board)
 
         return node in nodeList
+
+    def pos(self):
+        return (int(self.x), int(self.y))
