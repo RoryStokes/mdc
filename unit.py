@@ -1,4 +1,5 @@
 from node import Node
+import math
 
 class Unit(object):
     def __init__(self, x, y, board):
@@ -15,27 +16,28 @@ class Unit(object):
         currentNode = Node(self.x, self.y)
         targetNode = Node(moveToPos[0], moveToPos[1])
 
-        self.path = self.board.get_shortest_path(currentNode, targetNode)
-        self.target = self.path.pop(0)
+        testPath = self.board.get_shortest_path(currentNode, targetNode)
+        if testPath != None:
+            self.path = testPath
+            self.target = self.path.pop(0)
+
+        print(str(currentNode))
+        print(str(targetNode))
 
     def update(self):
         reached = True
 
-        if self.x > self.target.x:
-            self.x -= self.speed
-            reached = False
-        elif self.x < self.target.x:
-            self.x += self.speed
-            reached = False
-        
-        if self.y > self.target.y:
-            self.y -= self.speed
-            reached = False
-        elif self.y < self.target.y:
-            self.y += self.speed
-            reached = False
+        dx = self.target.x - self.x
+        dy = self.target.y - self.y
 
-        if reached:
+        ds = math.sqrt(dx*dx + dy*dy)
+
+        if ds > self.speed:
+            self.x += self.speed * dx / ds
+            self.y += self.speed * dy / ds
+        else:
+            self.x = self.target.x
+            self.y = self.target.y
             if len(self.path) > 0:
                 self.target = self.path.pop(0)
 

@@ -37,8 +37,12 @@ class Renderer:
 
 
 	def toGlobalCoord(self,(x,y)):
-		x_disp = (x - self.windowSize[0]/2) * (32/self.windowSize[0])
-		y_disp = (y - self.windowSize[1]/2) * (32/self.windowSize[1])
+		x_disp = (x - self.windowSize[0]/2.0) * (1.0/self.scale)
+		y_disp = (y - self.windowSize[1]/2.0) * (1.0/self.scale)
+
+		print x, y, self.windowSize[0], self.windowSize[1]
+		print x_disp, y_disp, self.anchor_x, self.anchor_y
+
 		return (x_disp+self.anchor_x,y_disp+self.anchor_y)
 
 	def setWindowSize(self,(x,y)):
