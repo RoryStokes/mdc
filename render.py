@@ -4,7 +4,8 @@ from pygame.locals import *
 class Renderer:
 	def __init__(self,window,map_obstructions,units):
 		self.window = window
-		self.anchor = (16,16)
+		self.anchor_x = 16
+		self.anchor_y = 16
 		self.scale = 40
 		self.windowSize = (0,0)
 		self.map_obstructions = map_obstructions
@@ -20,8 +21,8 @@ class Renderer:
 			tempPoly = []
 			onScreen = True
 			for x,y in poly:
-				x = self.scale*(x-self.anchor[0]) + self.windowSize[0]/2
-				y = self.scale*(y-self.anchor[1]) + self.windowSize[1]/2
+				x = self.scale*(x-self.anchor_x) + self.windowSize[0]/2
+				y = self.scale*(y-self.anchor_y) + self.windowSize[1]/2
 				tempPoly.append((x,y))
 				if x > 0 and x < self.windowSize[0] and y > 0 and y < self.windowSize[1]:
 					onScreen = True
@@ -31,17 +32,17 @@ class Renderer:
 	def toGlobalCoord(self,(x,y)):
 		x_disp = (x - self.windowSize[0]/2) * (32/self.windowSize[0])
 		y_disp = (y - self.windowSize[1]/2) * (32/self.windowSize[1])
-		return (x_disp+self.anchor[0],y_disp+self.anchor[1])
+		return (x_disp+self.anchor_x,y_disp+self.anchor_y)
 
 	def setWindowSize(self,(x,y)):
 		self.windowSize = (x,y)
 
 	def moveAnchor(self, dir):
 		if dir == "up":
-			self.anchor[1] -= self.scrollSpeed
+			self.anchor_y -= self.scrollSpeed
 		elif dir == "down":
-			self.anchor[1] += self.scrollSpeed
+			self.anchor_y += self.scrollSpeed
 		elif dir == "left":
-			self.anchor[0] -= self.scrollSpeed
+			self.anchor_x -= self.scrollSpeed
 		elif dir == "right":
-			self.anchor[0] += self.scrollSpeed
+			self.anchor_x += self.scrollSpeed
