@@ -14,7 +14,7 @@ bot_right_inner = geometry.Polygon((22,22), (28,22), (22,28),
 
 bot_left_outer = geometry.Polygon((0,25),(32,32),(0,32),
 								ccw=False)
-bot_right_outer = geometry.Polygon((32,25),(32,32),(25,32),
+top_right_outer = geometry.Polygon((25,0),(32,0),(32,8),
 								ccw=False)
 
 river_top = geometry.Polygon((0,13),(32,13),(32,14),(0,14),
