@@ -11,3 +11,8 @@ class FollowPath(amp.Command):
                     ('path', amp.AmpList([('x', amp.Float()),
                                           ('y', amp.Float())]))]
        response = []
+
+class NewTurn(amp.Command):
+       arguments = [('turn', amp.Integer()),
+                    ('end', amp.Float())]
+       response = []
