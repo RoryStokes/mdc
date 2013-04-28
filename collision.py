@@ -12,16 +12,17 @@ class CollisionManager:
 				self.testCollision(self.units[i],self.units[j])
 
 	def testCollision(self,a,b):
-		dx = a.x - b.x
-		dy = a.y - b.y
-		d2 = dx*dx + dy*dy
+		if(a.good != b.good):
+			dx = a.x - b.x
+			dy = a.y - b.y
+			d2 = dx*dx + dy*dy
 
-		r  = (a.getRadius() + b.getRadius())
-		r2 = r*r
+			r  = (a.getRadius() + b.getRadius())
+			r2 = r*r
 
-		if d2<r2:
-			print("COLLISION")
-			d = sqrt(d2)
-			overlap = r - d
-			a.takeDamage(overlap/2)
-			b.takeDamage(overlap/2)
+			if d2<r2:
+				print("COLLISION")
+				d = sqrt(d2)
+				overlap = r - d
+				a.takeDamage(overlap/2)
+				b.takeDamage(overlap/2)

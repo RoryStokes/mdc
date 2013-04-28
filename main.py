@@ -23,20 +23,45 @@ for poly in map_obstructions:
     map_board.add( geometry.Polygon(*poly, ccw=False) )
 
 pygame.init()
-clock   = pygame.time.Clock()
+clock         = pygame.time.Clock()
 event_manager = event.Event()
-window   = pygame.display.set_mode((640,400),pygame.RESIZABLE)
+window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
 
 units = []
 def addUnit(unit):
     event_manager.register("update", unit.update)
     units.append(unit)
-def addPlayer(unit):
-    addUnit(unit)
-    event_manager.register("rightClick", unit.pathTo)
-addPlayer(Unit(5, 5, map_board))
-addPlayer(Unit(27,5, map_board))
+def addPlayer(pos,good):
+    player = Unit(pos,good,0,map_board)
+    addUnit(player)
+    event_manager.register("rightClick", player.pathTo)
+
+creepSpawns  = [Node(2,2),Node(30,30)]
+bottomCorner = [Node(2,24),Node(8,30)]
+topCorner    = [Node(24,2),Node(30,8)]
+
+
+def addCreep(good,top):
+    if top:
+        corner = topCorner
+    else:
+        corner = bottomCorner
+
+    if good:
+        creep = Unit(creepSpawns[0],True,1,map_board)
+        creep.setPath(corner + [creepSpawns[1]])
+    else:
+        creep = Unit(creepSpawns[1],False,1,map_board)
+        creep.setPath(corner[::-1] + [creepSpawns[0]]) 
+    addUnit(creep)
+
+addPlayer(Node(5,5),True)
+addPlayer(Node(27,5),False)
+
+for good in (True,False):
+    for top in (True,False):
+        addCreep(good,top)
 
 renderer         = render.Renderer(window, map_obstructions, units)
 inputManager     = inputs.InputManager(event_manager, renderer)

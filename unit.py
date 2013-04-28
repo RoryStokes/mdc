@@ -2,27 +2,35 @@ from node import Node
 import math, entity
 
 class Unit(entity.Entity):
-    def __init__(self, x, y, board):
-        super(Unit, self).__init__(x, y, 100)
+    def __init__(self, pos,good, unit_type, board):
+        super(Unit, self).__init__(pos.x, pos.y, 100)
 
-        self.target = Node(x, y)
+        self.target = pos
         self.path = []
         self.speed = 0.05
         self.dir = 0
         self.radius = 0.5
         self.board = board#.get_expanded(-0.5)
+        self.type = unit_type
+        self.good = good
+
+        #TYPES:
+        # 0 - player
+        # 1 - creep
+        # 2 - tower
+        # 3 - hero
 
     def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)
         targetNode = Node(moveToPos[0], moveToPos[1])
 
-        testPath = self.board.get_shortest_path(currentNode, targetNode)
-        if testPath != None:
-            self.path = testPath
-            self.target = self.path.pop(0)
+        self.setPath( self.board.get_shortest_path(currentNode, targetNode) )
 
-        print(str(currentNode))
-        print(str(targetNode))
+    def setPath(self,path):
+        if path != None:
+            print path
+            self.path = path
+            self.target = self.path.pop(0)
 
     def getRadius(self):
         return self.radius
@@ -47,4 +55,5 @@ class Unit(entity.Entity):
             self.x = self.target.x
             self.y = self.target.y
             if len(self.path) > 0:
+                print "POP"
                 self.target = self.path.pop(0)

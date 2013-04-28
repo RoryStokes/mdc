@@ -35,7 +35,11 @@ class Renderer:
 				x,y = self.toScreenCoord((unit.x,unit.y))
 				radius = int(self.scale*unit.radius)
 				if x > -radius and x < self.windowSize[0]+radius and y > -radius and y < self.windowSize[1]+radius:
-					pygame.draw.circle(self.window, pygame.Color(255,0,0), (x,y), radius)
+					if unit.good:
+						color = pygame.Color(0,255,0)
+					else:
+						color = pygame.Color(255,0,0)
+					pygame.draw.circle(self.window, color, (x,y), radius)
 
 
 	def toGlobalCoord(self,(x,y)):
