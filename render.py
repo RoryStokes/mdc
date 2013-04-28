@@ -19,13 +19,16 @@ class Renderer:
 		#Draw map tiles
 		for poly in self.map_obstructions:
 			tempPoly = []
-			onScreen = False
+			above = below = left = right = True
 			for node in poly:
 				x,y = self.toScreenCoord(node)
 				tempPoly.append((x,y))
-				if x > 0 and x < self.windowSize[0] and y > 0 and y < self.windowSize[1]:
-					onScreen = True
-			if onScreen:
+
+				above = above and y < 0
+				below = below and y > self.windowSize[1]
+				left  = left  and x < 0
+				right = right and x > self.windowSize[0]
+			if not (above or below or left or right):
 				pygame.draw.polygon(self.window, pygame.Color(0,0,0), tempPoly)
 
 			for unit in self.units:
