@@ -9,7 +9,7 @@ class Unit(entity.Entity):
         self.path = []
         self.speed = 0.05
         self.dir = 0
-        self.board = board
+        self.board = board.get_expanded(-0.5)
 
     def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)
@@ -19,9 +19,6 @@ class Unit(entity.Entity):
         if testPath != None:
             self.path = testPath
             self.target = self.path.pop(0)
-
-        print(str(currentNode))
-        print(str(targetNode))
 
     def update(self):
         reached = True
