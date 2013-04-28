@@ -3,9 +3,18 @@ import math
 class Node(object):
     def __init__(self, x, y):
         super(Node, self).__init__()
-        self.x, self.y = float(x), float(y)
+        self._x, self._y = float(x), float(y)
+        self._hash = hash(self.x)^hash(self.y)
         self.visible_siblings = set()
     
+    @property
+    def x(self):
+        return self._x
+    
+    @property
+    def y(self):
+        return self._y
+
     def dist(self, point):
         return math.hypot(self.x - point.x, self.y - point.y)
     
@@ -22,4 +31,4 @@ class Node(object):
         return "Node" + self.__str__()
     
     def __hash__(self):
-        return hash(self.x)^hash(self.y)
+        return self._hash

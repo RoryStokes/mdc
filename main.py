@@ -45,8 +45,7 @@ renderer.setWindowSize((640,400))
 event_manager.register("keyDown", renderer.moveAnchor)
 event_manager.register("update", collisionManager.update)
 
-while True: 
-
+while True:
     for e in pygame.event.get():
         if e.type == QUIT:
             pygame.quit()

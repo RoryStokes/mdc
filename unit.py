@@ -10,7 +10,7 @@ class Unit(entity.Entity):
         self.speed = 0.05
         self.dir = 0
         self.radius = 0.5
-        self.board = board.get_expanded(-0.5)
+        self.board = board#.get_expanded(-0.5)
 
     def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)

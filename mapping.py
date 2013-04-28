@@ -18,16 +18,19 @@ class Board(object):
         super(Board, self).__init__()
         self.polygons = set()
         self.__precalculated = False
+        self.__nodes = None
     
     def add(self, poly):
         """Adds a polygon, ``poly``, to the game board."""
         self.polygons.add(poly)
         self.__precalculated = False
+        self.__nodes = None
     
     def remove(self, poly):
         """Removes a polygon, ``poly``, from the game board."""
         self.polygons.remove(poly)
         self.__precalculated = False
+        self.__nodes = None
     
     def get_lines(self):
         """Creates and returns a set of every polygon's lines on this
@@ -52,10 +55,12 @@ class Board(object):
     def get_nodes(self):
         """Creates and returns a set of every polygon's nodes on this
         ``Board``."""
-        nodes = set()
-        for i in self.polygons:
-            nodes.update(i.nodes)
-        return nodes
+        if self.__nodes == None:
+            self.__nodes = set()
+            for i in self.polygons:
+                self.__nodes.update(i.nodes)
+        return self.__nodes
+
     
     nodes = property(get_nodes,
                      doc="A set of every ``Polygon``'s nodes on this ``Board``")
@@ -135,9 +140,10 @@ class Board(object):
         if self.is_visible(node_a, node_b): return [node_b] # direct is shortest
         
         # Format: shortest_to[node] = (goes_though, cost, is_minimum)
-        shortest_to = {node_a:(None, 0, False), node_b:None}
+        shortest_to = {node_b:None}
         for i in self.nodes:
             shortest_to[i] = None
+        shortest_to[node_a] = (None, 0, False)
         search_queue = queue.PriorityQueue()
         search_queue.add(node_a, 0)
         while len(search_queue) > 0:
@@ -165,5 +171,5 @@ class Board(object):
                 cost = current_info[1] + current.dist(i)
                 if not shortest_to[i] or cost < shortest_to[i][1]:
                     shortest_to[i] = (current, cost, False)
-                    search_queue.add(i, cost)
+                    search_queue.add(i, cost + i.dist(node_b))
         return None
