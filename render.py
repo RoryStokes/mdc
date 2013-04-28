@@ -19,10 +19,9 @@ class Renderer:
 		#Draw map tiles
 		for poly in self.map_obstructions:
 			tempPoly = []
-			onScreen = True
-			for x,y in poly:
-				x = self.scale*(x-self.anchor_x) + self.windowSize[0]/2
-				y = self.scale*(y-self.anchor_y) + self.windowSize[1]/2
+			onScreen = False
+			for node in poly:
+				x,y = self.toScreenCoord(node)
 				tempPoly.append((x,y))
 				if x > 0 and x < self.windowSize[0] and y > 0 and y < self.windowSize[1]:
 					onScreen = True
@@ -30,20 +29,26 @@ class Renderer:
 				pygame.draw.polygon(self.window, pygame.Color(0,0,0), tempPoly)
 
 			for unit in self.units:
-				x = self.scale*(unit.x-self.anchor_x) + self.windowSize[0]/2
-				y = self.scale*(unit.y-self.anchor_y) + self.windowSize[1]/2
-				if x > 0 and x < self.windowSize[0] and y > 0 and y < self.windowSize[1]:
-					pygame.draw.circle(self.window, pygame.Color(255,0,0), (int(x), int(y)), int(self.scale * 0.5))
+				x,y = self.toScreenCoord((unit.x,unit.y))
+				radius = self.scale/2
+				if x > -radius and x < self.windowSize[0]+radius and y > -radius and y < self.windowSize[1]+radius:
+					pygame.draw.circle(self.window, pygame.Color(255,0,0), (x,y), radius)
 
 
 	def toGlobalCoord(self,(x,y)):
-		x_disp = (x - self.windowSize[0]/2.0) * (1.0/self.scale)
-		y_disp = (y - self.windowSize[1]/2.0) * (1.0/self.scale)
+		dx = (x - self.windowSize[0]/2.0) * (1.0/self.scale)
+		dy = (y - self.windowSize[1]/2.0) * (1.0/self.scale)
 
 		print x, y, self.windowSize[0], self.windowSize[1]
-		print x_disp, y_disp, self.anchor_x, self.anchor_y
+		print dx, dy, self.anchor_x, self.anchor_y
 
-		return (x_disp+self.anchor_x,y_disp+self.anchor_y)
+		return (dx+self.anchor_x,dy+self.anchor_y)
+
+	def toScreenCoord(self,(x,y)):
+		dx = self.scale*(x-self.anchor_x)
+		dy = self.scale*(y-self.anchor_y)
+
+		return (int(dx+self.windowSize[0]/2), int(dy+self.windowSize[1]/2))
 
 	def setWindowSize(self,(x,y)):
 		self.windowSize = (x,y)
