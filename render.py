@@ -41,10 +41,6 @@ class Renderer:
 	def toGlobalCoord(self,(x,y)):
 		dx = (x - self.windowSize[0]/2.0) * (1.0/self.scale)
 		dy = (y - self.windowSize[1]/2.0) * (1.0/self.scale)
-
-		print x, y, self.windowSize[0], self.windowSize[1]
-		print dx, dy, self.anchor_x, self.anchor_y
-
 		return (dx+self.anchor_x,dy+self.anchor_y)
 
 	def toScreenCoord(self,(x,y)):

@@ -1,5 +1,6 @@
 import geometry
 import node
+import queue
 
 class Board(object):
     """Representing a game board, this class is composed of a set of
@@ -134,39 +135,35 @@ class Board(object):
         if self.is_visible(node_a, node_b): return [node_b] # direct is shortest
         
         # Format: shortest_to[node] = (goes_though, cost, is_minimum)
-        shortest_to = {node_b:None}
+        shortest_to = {node_a:(None, 0, False), node_b:None}
         for i in self.nodes:
             shortest_to[i] = None
-        starting_from = node_a
-        starting_from_cost = 0
-        while True:
-            # find possible paths
-            improvable = set()
-            for k in shortest_to:
-                if shortest_to[k] == None or not shortest_to[k][2]:
-                    improvable.add(k)
-            improvable &= self.get_visible_set(starting_from, node_b)
-            if not improvable: # nothing else we can do
-                return None
-            # see if there is a shorter path for any of these via starting_from
-            lowest_cost = None
-            lowest_cost_node = None
-            for i in improvable:
-                cost = starting_from_cost + starting_from.dist(i)
-                if not lowest_cost or cost < lowest_cost:
-                    lowest_cost = cost
-                    lowest_cost_node = i
-                if not shortest_to[i] or cost < shortest_to[i][1]:
-                    shortest_to[i] = (starting_from, cost, False)
-            lowest_cost_info = list(shortest_to[lowest_cost_node])
-            lowest_cost_info[2] = True
-            shortest_to[lowest_cost_node] = tuple(lowest_cost_info)
-            if lowest_cost_node == node_b: # we're done! wrap it up.
+        search_queue = queue.PriorityQueue()
+        search_queue.add(node_a, 0)
+        while len(search_queue) > 0:
+            current = search_queue.pop()
+            if current == node_b: # we're done! wrap it up.
                 path = []
                 n = node_b
                 while n != node_a:
                     path[:0] = [n]
                     n = shortest_to[n][0]
                 return path
-            starting_from = lowest_cost_node
-            starting_from_cost = lowest_cost
+            current_info = list(shortest_to[current])
+            current_info[2] = True
+            shortest_to[current] = tuple(current_info)
+            # find possible paths
+            improvable = set()
+            for k in shortest_to:
+                if shortest_to[k] == None or not shortest_to[k][2]:
+                    improvable.add(k)
+            improvable &= self.get_visible_set(current, node_b)
+            if not improvable: # nothing else we can do
+                return None
+            # see if there is a shorter path for any of these via current
+            for i in improvable:
+                cost = current_info[1] + current.dist(i)
+                if not shortest_to[i] or cost < shortest_to[i][1]:
+                    shortest_to[i] = (current, cost, False)
+                    search_queue.add(i, cost)
+        return None

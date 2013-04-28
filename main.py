@@ -36,6 +36,7 @@ def addPlayer(unit):
     addUnit(unit)
     event_manager.register("rightClick", unit.pathTo)
 addPlayer(Unit(5, 5, map_board))
+addPlayer(Unit(27,5, map_board))
 
 renderer         = render.Renderer(window, map_obstructions, units)
 inputManager     = inputs.InputManager(event_manager, renderer)

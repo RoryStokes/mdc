@@ -9,8 +9,8 @@ class Unit(entity.Entity):
         self.path = []
         self.speed = 0.05
         self.dir = 0
-        self.board = board
         self.radius = 0.5
+        self.board = board.get_expanded(-0.5)
 
     def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)
@@ -25,12 +25,12 @@ class Unit(entity.Entity):
         print(str(targetNode))
 
     def getRadius(self):
-        return radius
+        return self.radius
 
     def takeDamage(self,damage):
-        radius -= damage;
-        if radius < 0:
-            radius = 0
+        self.radius -= damage;
+        if self.radius < 0:
+            self.radius = 0
 
     def update(self):
         reached = True
