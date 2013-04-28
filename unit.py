@@ -29,7 +29,7 @@ class Unit(entity.Entity):
 
     def takeDamage(self,damage):
         self.radius -= damage;
-        if self.radius < 0:
+        if self.radius < 0.1:
             self.radius = 0
 
     def update(self):

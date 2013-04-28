@@ -288,24 +288,71 @@ class Polygon(BasePolygon):
         n = self.nodes if self.is_ccw else list(reversed(self.nodes))
         inf = float("inf")
         # neg_zero = float("-0")
-        point_slopes = []
-        for i in xrange(len(n)):
-            l = Line(n[i], n[(i + 1) % len(n)])
-            s = l.slope
-            p_s = l.perpendicular_slope
-            # Perpendicular Line
-            # Solve for quads, we deal with y on line because that corresponds
-            # with the sign of x on the perp
-            p_l = Line(node_a=l.midpoint, slope=p_s,
-                       distance=(outset if l.delta_y < 0 else -outset))
-            n_b = p_l.node_b
-            point_slopes.append((n_b, s))
-        # convert point_slopes to a series of points
+        edge_perps = []
         nodes = []
-        for i in xrange(len(point_slopes)):
-            nodes.append(self.__find_interesection_point(
-                             *(point_slopes[i] +
-                               point_slopes[(i + 1) % len(point_slopes)])))
+
+
+        #      |c /
+        #      | /b
+        # _____|/___a
+        # #####|
+        #  ####|
+        #    ##|
+
+
+
+         # Calculate points perpendicular to each edge at each vertex
+        for i in xrange(len(n)):
+
+
+            #  i           f
+            #  |___________|
+            #  |###########|
+
+
+            #For each edge:
+            #Find the line representing it, and the perpendicular slope
+            l = Line(n[i], n[(i + 1) % len(n)])
+            p_s = l.perpendicular_slope
+
+            #Generate a perpendicular line at each vertex of the edge
+            l_i = Line(node_a=l.node_a, slope=p_s,
+                       distance=(outset if l.delta_y < 0 else -outset))
+            l_f = Line(node_a=l.node_b, slope=p_s,
+                       distance=(outset if l.delta_y < 0 else -outset))
+
+            i = l_i.node_b
+            f = l_f.node_b
+            #Store the end points of the lines
+            edge_perps.append(i)
+            edge_perps.append(f)
+
+        # Calculate a point at each vertex at an angle bisecting the edges
+        for i in xrange(len(n)):
+
+            #      |c /
+            #      | /b
+            # _____|/___a
+            # #####|
+            #  ####|
+            #    ##|
+
+            # For each vertex
+            #Generate a line between the two edge perpendiculars
+            a = edge_perps[((2*i)-1) % (2*len(n))]
+            c = edge_perps[(2*i)]
+            l = Line(a,c)
+
+            #Take a point perpendicular to the line, and the same outset from the vertex
+            p_s = l.perpendicular_slope
+            l_b = Line(node_a=n[i], slope=p_s,
+                        distance=(outset if l.delta_y < 0 else -outset))
+            b = l_b.node_b
+
+            #Append these points in order
+            nodes.append(a)
+            nodes.append(b)
+            nodes.append(c)
         return Polygon(*nodes, ccw=True)
         
     def __find_interesection_point(self, pa, sa, pb, sb):
