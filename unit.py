@@ -7,7 +7,7 @@ class Unit(entity.Entity):
 
         self.target = pos
         self.path = []
-        self.speed = 0.05
+        self.speed = 0.1
         self.dir = 0
         self.radius = 0.5
         self.board = board#.get_expanded(-0.5)
