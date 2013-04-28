@@ -2,7 +2,7 @@ import geometry
 import mapping
 from node import Node
 import unittest
-import render, event, inputs
+import render, event, inputs, collision
 import pygame, sys
 from unit import Unit
 from pygame.locals import *
@@ -37,10 +37,12 @@ def addPlayer(unit):
     event_manager.register("rightClick", unit.pathTo)
 addPlayer(Unit(5, 5, map_board))
 
-renderer = render.Renderer(window, map_obstructions, units)
-event_manager.register("keyDown", renderer.moveAnchor)
-inputManager = inputs.InputManager(event_manager, renderer)
+renderer         = render.Renderer(window, map_obstructions, units)
+inputManager     = inputs.InputManager(event_manager, renderer)
+collisionManager = collision.CollisionManager(event_manager, units)
 renderer.setWindowSize((640,400))
+event_manager.register("keyDown", renderer.moveAnchor)
+event_manager.register("update", collisionManager.update)
 
 while True: 
 

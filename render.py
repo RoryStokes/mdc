@@ -33,7 +33,7 @@ class Renderer:
 
 			for unit in self.units:
 				x,y = self.toScreenCoord((unit.x,unit.y))
-				radius = self.scale/2
+				radius = int(self.scale*unit.radius)
 				if x > -radius and x < self.windowSize[0]+radius and y > -radius and y < self.windowSize[1]+radius:
 					pygame.draw.circle(self.window, pygame.Color(255,0,0), (x,y), radius)
 
