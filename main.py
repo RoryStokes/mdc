@@ -59,9 +59,10 @@ def addCreep(good,top):
 addPlayer(Node(5,5),True)
 addPlayer(Node(27,5),False)
 
-for good in (True,False):
-    for top in (True,False):
-        addCreep(good,top)
+def addCreeps():
+    for good in (True,False):
+        for top in (True,False):
+            addCreep(good,top)
 
 renderer         = render.Renderer(window, map_obstructions, units)
 inputManager     = inputs.InputManager(event_manager, renderer)
@@ -69,6 +70,9 @@ collisionManager = collision.CollisionManager(event_manager, units)
 renderer.setWindowSize((640,400))
 event_manager.register("keyDown", renderer.moveAnchor)
 event_manager.register("update", collisionManager.update)
+event_manager.register("creepAdd", addCreeps)
+
+event_manager.notify("creepAdd")
 
 while True:
     for e in pygame.event.get():
