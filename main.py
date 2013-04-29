@@ -5,10 +5,16 @@ import pygame, sys
 from pygame.locals import *
 from twisted.internet import reactor
 
-networkManager = network.NetworkManager()
 
 host = raw_input("Enter IP to connect to (leave blank to host): ")
-port = 8888
+port = raw_input("Enter port to use (leave blank to use default - 8888): ")
+if port == "":
+	port = 8888
+else:
+	port = int(port)
+
+networkManager = network.NetworkManager()
+
 if host != "":
 	reactor.connectTCP(host, port, networkManager)
 	reactor.run()
@@ -52,7 +58,7 @@ unitManager.addPlayer(False)
 
 eventManager.notify("creepAdd")
 
-while True:
+while False: #True:
 	for e in pygame.event.get():
 		if e.type == QUIT:
 			pygame.quit()

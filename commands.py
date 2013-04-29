@@ -12,4 +12,5 @@ class Order(amp.Command):
        response = [('success', amp.Boolean())]
 
 class SendConns(amp.Command):
-       arguments = [('conns', amp.ListOf(amp.String))]
+       arguments = [('conns', amp.AmpList([('host', amp.String()),
+											('port',amp.Integer())]))]
