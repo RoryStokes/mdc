@@ -1,6 +1,6 @@
 from twisted.internet import protocol, reactor
 from twisted.protocols import amp
-from commands import Ready, StartGame, Order, Done, SendConns
+from commands import Ready, StartGame, Order, Done, SendConns, YouGood, MeGood
 import datetime
 
 class UTC(datetime.tzinfo):
@@ -64,13 +64,28 @@ class NetworkHandler(amp.AMP):
         return {}
     SendConns.responder(getConns)
 
+    def youGood(self, good):
+        self.manager.isGood[self.manager] = good
+        for client in self.manager.clients.itervalues():
+            client.callRemote(MeGood, good=good)
+        self.manager.checkReady()
+        return {}
+    YouGood.responder(youGood)
+
+    def meGood(self, good):
+        self.manager.isGood[self] = good
+        self.manager.checkReady()
+        return {}
+    MeGood.responder(meGood)
+
 class NetworkManager(protocol.ClientFactory):
-    def __init__(self, numPlayers, port, update, doOrder):
+    def __init__(self, numPlayers, port, update, doOrder, spawnPlayer):
         self.numPlayers = numPlayers
         self.port = port
         self.doOrder = doOrder
         self.clients = {}
         self.ids = {self: 0}
+        self.isGood = {}
         self.turn = 0
         self.cTurn = self.turn + 3
         self.ready = {}
@@ -87,6 +102,15 @@ class NetworkManager(protocol.ClientFactory):
         self.timeout = None
         self.turnEnd = None
         self.mainLoop = update
+        self.server = False
+        self.spawn = spawnPlayer
+
+    def checkReady(self):
+        print len(self.isGood), self.isGood
+        if len(self.isGood) > len(self.clients):
+            for client in self.isGood:
+                self.spawn(self.isGood[client], self.ids[client])
+            self.setReady()
 
     def setReady(self):
         if self not in self.ready:
@@ -166,14 +190,23 @@ class NetworkManager(protocol.ClientFactory):
             self.turnEnd = max([x[0]-self.offset[client] for client,x in self.start.iteritems()])
             reactor.callLater((self.turnEnd - datetime.datetime.now(UTC())).total_seconds(), self.beginTurn)
 
+    def assignTeams(self):
+        for client in self.ids:
+            self.isGood[client] = len(self.isGood) < self.numPlayers // 2
+            if client != self:
+                client.callRemote(YouGood, good=self.isGood[client])
+            else:
+                for client2 in self.clients.itervalues():
+                    client2.callRemote(MeGood, good=self.isGood[client])
+
     def buildProtocol(self, addr):
         newClient = None
         if len(self.clients) + 1 < self.numPlayers:
             newClient = NetworkHandler(self)
             self.clients[addr] = newClient
             self.ids[newClient] = len(self.clients)
-            if len(self.clients) + 1 == self.numPlayers:
-                reactor.callLater(0,self.setReady)
+            if self.server and len(self.clients) + 1 == self.numPlayers:
+                reactor.callLater(0,self.assignTeams)
         else:
             newClient = SpectatorClient()
         return newClient

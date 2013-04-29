@@ -27,7 +27,7 @@ def update(n):
         renderer.update()
 	pygame.display.update()  
         creepTime[0] -= 1
-        if creepTime[0] <= 0:
+        if creepTime[0] == 0:
                 eventManager.notify("creepAdd")
                 creepTime[0] = 300
         if n > 1:
@@ -66,7 +66,7 @@ for poly in map_obstructions:
 pygame.init()
 clock         = pygame.time.Clock()
 eventManager  = event.Event()
-creepTime     = [0]
+creepTime     = [1]
 window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
 
@@ -79,19 +79,15 @@ eventManager.register("update",unitManager.update)
 eventManager.register("creepAdd", unitManager.spawnWave)
 
 
-networkManager = network.NetworkManager(2, port, update, unitManager.moveOrder)
+players = 2
+networkManager = network.NetworkManager(players, port, update, unitManager.moveOrder, unitManager.addPlayer)
 
 if host != "":
 	reactor.connectTCP(host, remotePort, networkManager)
+else:
+        networkManager.server = True
 reactor.listenTCP(port, networkManager)
 
 eventManager.register("rightClick", networkManager.sendOrder)
-
-if host != "":
-        unitManager.addPlayer(True,  0)
-        unitManager.addPlayer(False, 1)
-else:
-        unitManager.addPlayer(False, 0)
-        unitManager.addPlayer(True,  1)
 
 reactor.run()

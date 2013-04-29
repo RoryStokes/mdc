@@ -1,14 +1,12 @@
 from twisted.protocols import amp
 
 class Ready(amp.Command):
-       arguments = []
        response = [('time', amp.DateTime())]
 
 class StartGame(amp.Command):
        arguments = [('ping', amp.Float()),
                     ('time', amp.DateTime()),
                     ('turnLength', amp.Float())]
-       response = []
 
 class Done(amp.Command):
        arguments = [('turn', amp.Integer()),
@@ -25,3 +23,11 @@ class SendConns(amp.Command):
        arguments = [('conns', amp.AmpList([('host', amp.String()),
                                            ('port',amp.Integer())])),
                     ('port', amp.Integer())]
+
+class YouGood(amp.Command):
+       arguments = [('good', amp.Boolean())]
+       response  = []
+
+class MeGood(amp.Command):
+       arguments = [('good', amp.Boolean())]
+       response  = []
