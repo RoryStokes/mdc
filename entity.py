@@ -35,12 +35,19 @@ class Unit(entity.Entity):
 
         self.target = pos
         self.path = []
-        self.speed = 0.05
+        self.speed = 0.08
         self.dir = 0
         self.radius = 0.5
         self.board = board#.get_expanded(-0.5)
         self.type = unit_type
         self.good = good
+        self.damage = 0
+        if self.type == 0:
+            self.speed = 0.1
+        if self.type == 2:
+            self.radius = 4
+        self.maxRad = self.radius
+        self.growRate = self.radius / 300
 
         #TYPES:
         # 0 - player
@@ -65,6 +72,11 @@ class Unit(entity.Entity):
 
     def takeDamage(self,damage):
         self.radius -= damage;
+        if self.type == 0:
+            self.damage += damage
+            while self.damage > 0.05:
+                self.damage -= 0.05
+                self.maxRad += 0.005
         if self.radius < 0.1:
             self.radius = 0
 
@@ -85,3 +97,9 @@ class Unit(entity.Entity):
             if len(self.path) > 0:
                 print "POP"
                 self.target = self.path.pop(0)
+
+        if self.type == 0:
+            if self.radius + self.growRate < self.maxRad:
+                self.radius += self.growRate
+            else:
+                self.radius = self.maxRad
