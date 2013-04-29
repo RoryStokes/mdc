@@ -7,10 +7,17 @@ class UnitManager:
 		self.event = eventManager
 		self.units = []
 		self.map   = map_board
+                
+                self.players = {}
+                self.event.register("moveOrder", self.moveOrder)
 
 		self.spawnPoints  = [Node(2,2),Node(30,30)]
 		self.bottomCorner = [Node(2,24),Node(8,30)]
 		self.topCorner    = [Node(24,2),Node(30,8)]
+
+        def moveOrder(self, id, x, y):
+                if id in self.players:
+                        self.players[id].pathTo((x, y))
 
 	def update(self):
 		dead = []
@@ -53,15 +60,14 @@ class UnitManager:
 		print "added", unit.type, len(self.units)
 		self.units.append(unit)
 
-	def addPlayer(self,good):
+	def addPlayer(self,good,id):
 		if good:
 			pos=self.spawnPoints[0]
 		else:
 			pos=self.spawnPoints[1]
 		player = Unit(pos,good,0,self.map)
+                self.players[id] = player
 		self.addUnit(player)
-		self.event.register("rightClick", player.pathTo)
-
 
 	def addCreep(self,good,top):
 		print good, top

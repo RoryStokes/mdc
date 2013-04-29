@@ -5,6 +5,30 @@ import pygame, sys
 from pygame.locals import *
 from twisted.internet import reactor
 
+def update(n):
+        for e in pygame.event.get():
+                if e.type == QUIT:
+			pygame.quit()
+			sys.exit()
+		elif e.type == VIDEORESIZE:
+			pygame.display.set_mode((e.size),pygame.RESIZABLE)
+			renderer.setWindowSize(e.size)
+		elif e.type == MOUSEBUTTONDOWN:
+			inputManager.registerClick(e.pos, e.button, True)
+		elif e.type == MOUSEBUTTONUP:
+			inputManager.registerClick(e.pos, e.button, False)
+		elif e.type == KEYDOWN:
+			inputManager.registerKey(e.key, True)
+		elif e.type == KEYUP:
+			inputManager.registerKey(e.key, False)
+
+        eventManager.notify("update")
+        eventManager.update()
+        renderer.update()
+	pygame.display.update()  
+        if n > 1:
+                reactor.callLater(0.03, update, n-1)
+
 host = raw_input("Enter IP to connect to (leave blank to host): ")
 
 if host != "":
@@ -19,13 +43,6 @@ if port == "":
 	port = 8888
 else:
 	port = int(port)
-
-networkManager = network.NetworkManager(port)
-
-if host != "":
-	reactor.connectTCP(host, remotePort, networkManager)
-reactor.listenTCP(port, networkManager)
-reactor.run()
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],       #top left inner
@@ -58,31 +75,21 @@ eventManager.register("update",unitManager.update)
 eventManager.register("creepAdd", unitManager.spawnWave)
 
 
-unitManager.addPlayer(True)
-unitManager.addPlayer(False)
+networkManager = network.NetworkManager(2, port, update, unitManager.moveOrder)
+
+if host != "":
+	reactor.connectTCP(host, remotePort, networkManager)
+reactor.listenTCP(port, networkManager)
+
+eventManager.register("rightClick", networkManager.sendOrder)
+
+if host != "":
+        unitManager.addPlayer(True,  0)
+        unitManager.addPlayer(False, 1)
+else:
+        unitManager.addPlayer(False, 0)
+        unitManager.addPlayer(True,  1)
 
 eventManager.notify("creepAdd")
 
-while False: #True:
-	for e in pygame.event.get():
-		if e.type == QUIT:
-			pygame.quit()
-			sys.exit()
-		elif e.type == VIDEORESIZE:
-			pygame.display.set_mode((e.size),pygame.RESIZABLE)
-			renderer.setWindowSize(e.size)
-		elif e.type == MOUSEBUTTONDOWN:
-			inputManager.registerClick(e.pos, e.button, True)
-		elif e.type == MOUSEBUTTONUP:
-			inputManager.registerClick(e.pos, e.button, False)
-		elif e.type == KEYDOWN:
-			inputManager.registerKey(e.key, True)
-		elif e.type == KEYUP:
-			inputManager.registerKey(e.key, False)
-
-	eventManager.notify("update")
-	eventManager.update()
-	renderer.update()
-	pygame.display.update()
-
-	clock.tick(30)
+reactor.run()

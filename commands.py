@@ -5,7 +5,9 @@ class Ready(amp.Command):
        response = [('time', amp.DateTime())]
 
 class StartGame(amp.Command):
-       arguments = [('time', amp.DateTime())]
+       arguments = [('ping', amp.Float()),
+                    ('time', amp.DateTime()),
+                    ('turnLength', amp.Float())]
        response = []
 
 class Done(amp.Command):
