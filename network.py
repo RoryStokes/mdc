@@ -83,7 +83,7 @@ class NetworkManager(protocol.ClientFactory):
         self.readyTime = None
         self.running = False
         self.waiting = False
-        self.turnLength = datetime.timedelta(0,0,0,50)
+        self.turnLength = datetime.timedelta(0,0,0,60)
         self.timeout = None
         self.turnEnd = None
         self.mainLoop = update
@@ -103,7 +103,7 @@ class NetworkManager(protocol.ClientFactory):
     def endTurn(self):
         #print "end", self.cTurn
         self.cTurn += 1
-        self.ping[self.cTurn-1] = datetime.timedelta(0,0,0,50)
+        self.ping[self.cTurn-1] = datetime.timedelta(0,0,0,60)
         for client in self.clients.itervalues():
             client.callRemote(Done, turn=self.cTurn-1, ping=self.ping[self.cTurn-1].total_seconds())
         self.timeout = reactor.callLater(1, self.onTimeout)
@@ -120,7 +120,7 @@ class NetworkManager(protocol.ClientFactory):
             for o in self.orders[self.turn]:
                 self.doOrder(self.ids[o[0]], o[1], o[2])
             del self.orders[self.turn]
-        self.mainLoop(1)
+        self.mainLoop(2)
         reactor.callLater(self.turnLength.total_seconds(), self.endTurn)
 
     def checkDone(self):
@@ -155,7 +155,7 @@ class NetworkManager(protocol.ClientFactory):
             self.start[self] = (now + 5*latency, max(latency+latency//10,datetime.timedelta(0,0,0,30)))
             self.offset[self] = datetime.timedelta(0)
             for turn in [0,1,2]:
-                self.ping[turn] = datetime.timedelta(0,0,0,50)
+                self.ping[turn] = datetime.timedelta(0,0,0,60)
             for client in self.clients.itervalues():
                 client.callRemote(StartGame, ping=latency.total_seconds(), time=now + 5*latency, turnLength=max(latency+latency//10,datetime.timedelta(0,0,0,30)).total_seconds()) 
             self.starting()
