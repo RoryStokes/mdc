@@ -137,6 +137,9 @@ class Board(object):
 		
 		# Handle special/common cases
 		if node_a == node_b: return [node_a]
+                for p in self.polygons:
+                        if p.contains_node_in_area(node_a) or p.contains_node_in_area(node_b):
+                                return None
 		if self.is_visible(node_a, node_b): return [node_b] # direct is shortest
 		
 		# Format: shortest_to[node] = (goes_though, cost, is_minimum)
