@@ -25,11 +25,17 @@ def update(n):
         eventManager.notify("update")
         eventManager.update()
         renderer.update()
-	pygame.display.update()  
-        creepTime[0] -= 1
-        if creepTime[0] == 0:
-                eventManager.notify("creepAdd")
-                creepTime[0] = 300
+	pygame.display.update()
+        for k in creepTime:
+                creepTime[k] -= 1
+                print k, creepTime[k]
+                if creepTime[k] == 0:
+                        if k == -1:
+                                eventManager.notify("creepAdd")
+                                creepTime[-1] = 300
+                        else:
+                                print isGood[k],k
+                                unitManager.addPlayer(isGood[k],k)
         if n > 1:
                 reactor.callLater(0.03, update, n-1)
 
@@ -66,11 +72,14 @@ for poly in map_obstructions:
 pygame.init()
 clock         = pygame.time.Clock()
 eventManager  = event.Event()
-creepTime     = [1]
+creepTime     = {-1: 1}
 window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
 
-unitManager      = units.UnitManager(eventManager, map_board)
+def respawnPlayer(id):
+     creepTime[id] = 300   
+
+unitManager      = units.UnitManager(eventManager, map_board, respawnPlayer)
 renderer         = render.Renderer(window, map_obstructions, unitManager)
 inputManager     = inputs.InputManager(eventManager, renderer)
 renderer.setWindowSize((640,400))
@@ -78,9 +87,14 @@ eventManager.register("keyDown", renderer.moveAnchor)
 eventManager.register("update",unitManager.update)
 eventManager.register("creepAdd", unitManager.spawnWave)
 
+isGood = {}
+
+def addPlayer(good, id):
+        unitManager.addPlayer(good, id)
+        isGood[id] = good
 
 players = 2
-networkManager = network.NetworkManager(players, port, update, unitManager.moveOrder, unitManager.addPlayer)
+networkManager = network.NetworkManager(players, port, update, unitManager.moveOrder, addPlayer)
 
 if host != "":
 	reactor.connectTCP(host, remotePort, networkManager)

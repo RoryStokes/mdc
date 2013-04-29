@@ -3,7 +3,7 @@ from node import Node
 from math import sqrt
 
 class UnitManager:
-	def __init__(self,eventManager,map_board):
+	def __init__(self,eventManager,map_board,respawn):
 		self.event = eventManager
 		self.units = []
 		self.map   = map_board
@@ -14,6 +14,8 @@ class UnitManager:
 		self.spawnPoints  = [Node(2,2),Node(30,30)]
 		self.bottomCorner = [Node(2,24),Node(8,30)]
 		self.topCorner    = [Node(24,2),Node(30,8)]
+
+                self.respawn = respawn
 
         def moveOrder(self, id, x, y):
                 if id in self.players:
@@ -29,7 +31,16 @@ class UnitManager:
 				unit.update()
 
 		for i in dead:
-                        if i.type == 2:
+                        if i.type == 0:
+                                index = -1
+                                for id, u in self.players.iteritems():
+                                        if u == i:
+                                                self.respawn(id)
+                                                index = id
+                                                break
+                                if index != -1:
+                                        del self.players[index]
+                        elif i.type == 2:
                                 if i.good:
                                         print "BAD WINS"
                                 else:

@@ -208,5 +208,5 @@ class NetworkManager(protocol.ClientFactory):
             if self.server and len(self.clients) + 1 == self.numPlayers:
                 reactor.callLater(0,self.assignTeams)
         else:
-            newClient = SpectatorClient()
+            newClient = SpectatorHandler()
         return newClient
