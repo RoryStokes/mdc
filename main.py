@@ -26,6 +26,10 @@ def update(n):
         eventManager.update()
         renderer.update()
 	pygame.display.update()  
+        creepTime[0] -= 1
+        if creepTime[0] <= 0:
+                eventManager.notify("creepAdd")
+                creepTime[0] = 300
         if n > 1:
                 reactor.callLater(0.03, update, n-1)
 
@@ -62,9 +66,9 @@ for poly in map_obstructions:
 pygame.init()
 clock         = pygame.time.Clock()
 eventManager  = event.Event()
+creepTime     = [0]
 window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
-
 
 unitManager      = units.UnitManager(eventManager, map_board)
 renderer         = render.Renderer(window, map_obstructions, unitManager)
@@ -89,7 +93,5 @@ if host != "":
 else:
         unitManager.addPlayer(False, 0)
         unitManager.addPlayer(True,  1)
-
-eventManager.notify("creepAdd")
 
 reactor.run()
