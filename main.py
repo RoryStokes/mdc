@@ -90,4 +90,7 @@ reactor.listenTCP(port, networkManager)
 
 eventManager.register("rightClick", networkManager.sendOrder)
 
+unitManager.addAncient(True)
+unitManager.addAncient(False)
+
 reactor.run()

@@ -29,6 +29,11 @@ class UnitManager:
 				unit.update()
 
 		for i in dead:
+                        if i.type == 2:
+                                if i.good:
+                                        print "BAD WINS"
+                                else:
+                                        print "GOOD WINS"
 			self.units.remove(i)
 
 
@@ -62,9 +67,9 @@ class UnitManager:
 
 	def addPlayer(self,good,id):
 		if good:
-			pos=self.spawnPoints[0]
+			pos=Node(self.spawnPoints[0].x + 3.5, self.spawnPoints[0].y + 3.5)
 		else:
-			pos=self.spawnPoints[1]
+			pos=Node(self.spawnPoints[1].x - 3.5, self.spawnPoints[1].y - 3.5)
 		player = Unit(pos,good,0,self.map)
                 self.players[id] = player
 		self.addUnit(player)
@@ -89,3 +94,12 @@ class UnitManager:
 		for good in (True,False):
 			for top in (True,False):
 				self.addCreep(good,top)
+
+	def addAncient(self,good):
+		if good:
+			pos=self.spawnPoints[0]
+		else:
+			pos=self.spawnPoints[1]
+		ancient = Unit(pos,good,2,self.map)
+		self.addUnit(ancient)
+                
