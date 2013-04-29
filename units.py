@@ -46,8 +46,8 @@ class UnitManager:
 				d = sqrt(d2)
 				overlap = r - d
 				print overlap
-				a.takeDamage(overlap/2)
-				b.takeDamage(overlap/2)
+				a.takeDamage(overlap/2, b)
+				b.takeDamage(overlap/2, a)
 
 	def addUnit(self,unit):
 		print "added", unit.type, len(self.units)

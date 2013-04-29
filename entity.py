@@ -35,18 +35,27 @@ class Unit(entity.Entity):
 
         self.target = pos
         self.path = []
-        self.speed = 0.05
         self.dir = 0
-        self.radius = 0.5
         self.board = board#.get_expanded(-0.5)
         self.type = unit_type
         self.good = good
+
+        if self.type == 0:
+            self.speed = 0.06
+            self.radius = 0.5
+        elif self.type == 1:
+            self.speed = 0.04
+            self.radius = 0.4
+        else:
+            self.speed = 0
+            self.radius = 1
+
+        self.value = self.radius
 
         #TYPES:
         # 0 - player
         # 1 - creep
         # 2 - tower
-        # 3 - hero
 
     def pathTo(self, moveToPos):
         currentNode = Node(self.x, self.y)
@@ -63,10 +72,13 @@ class Unit(entity.Entity):
     def getRadius(self):
         return self.radius
 
-    def takeDamage(self,damage):
-        self.radius -= damage;
+    def takeDamage(self,damage,attacker):
+        self.radius -= damage
         if self.radius < 0.1:
-            self.radius = 0
+            attacker.takeBounty(self.value - self.radius)
+
+    def takeBounty(self,value):
+        self.radius += value
 
     def update(self):
         reached = True

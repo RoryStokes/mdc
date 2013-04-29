@@ -6,21 +6,21 @@ from pygame.locals import *
 from twisted.internet import reactor
 
 
-host = raw_input("Enter IP to connect to (leave blank to host): ")
-port = raw_input("Enter port to use (leave blank to use default - 8888): ")
-if port == "":
-	port = 8888
-else:
-	port = int(port)
-
-networkManager = network.NetworkManager()
-
-if host != "":
-	reactor.connectTCP(host, port, networkManager)
-	reactor.run()
-else:
-	reactor.listenTCP(port, networkManager)
-	reactor.run()
+# host = raw_input("Enter IP to connect to (leave blank to host): ")
+# port = raw_input("Enter port to use (leave blank to use default - 8888): ")
+# if port == "":
+# 	port = 8888
+# else:
+# 	port = int(port)
+# 
+# networkManager = network.NetworkManager()
+# 
+# if host != "":
+# 	reactor.connectTCP(host, port, networkManager)
+# 	reactor.run()
+# else:
+# 	reactor.listenTCP(port, networkManager)
+# 	reactor.run()
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],       #top left inner
@@ -58,7 +58,7 @@ unitManager.addPlayer(False)
 
 eventManager.notify("creepAdd")
 
-while False: #True:
+while True:
 	for e in pygame.event.get():
 		if e.type == QUIT:
 			pygame.quit()
