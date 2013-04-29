@@ -28,13 +28,11 @@ def update(n):
 	pygame.display.update()
         for k in creepTime:
                 creepTime[k] -= 1
-                print k, creepTime[k]
                 if creepTime[k] == 0:
                         if k == -1:
                                 eventManager.notify("creepAdd")
                                 creepTime[-1] = 300
                         else:
-                                print isGood[k],k
                                 unitManager.addPlayer(isGood[k],k)
         if n > 1:
                 reactor.callLater(0.03, update, n-1)
