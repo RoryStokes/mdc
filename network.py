@@ -124,9 +124,9 @@ class NetworkManager(protocol.ClientFactory):
         reactor.callLater(self.turnLength.total_seconds(), self.endTurn)
 
     def checkDone(self):
-        if self.waiting and self.turn in self.done and self.turn in self.ping and len(self.done[self.turn]) == len(self.clients):
+        if self.waiting and self.turn+1 in self.done and self.turn+1 in self.ping and len(self.done[self.turn+1]) == len(self.clients):
             self.waiting = False
-            latency = max(max(self.done[self.turn].itervalues()), self.ping[self.turn])
+            latency = max(max(self.done[self.turn+1].itervalues()), self.ping[self.turn+1])
             self.turnLength = max((9*self.turnLength + latency + latency // 10) // 10, datetime.timedelta(0,0,0,30))
             self.turnEnd = datetime.datetime.now(UTC()) + self.turnLength
             if self.timeout != None:
