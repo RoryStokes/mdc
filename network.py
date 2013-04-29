@@ -1,12 +1,13 @@
-from twisted.internet import protocol
+from twisted.internet import protocol, reactor
 from twisted.protocols import amp
-from commands import Order, Done
+from commands import Order, Done, SendConns
 import datetime
 
 class NetworkHandler(amp.AMP):
     def __init__(self, manager):
         self.manager = manager
-        self.done = True
+        self.done    = True
+        self.port    = 8888
 
     def ready(self):
         self.manager.ready[self] = True
@@ -29,8 +30,21 @@ class NetworkHandler(amp.AMP):
         return {'success': True}
     Done.responder(done)
 
+    def connectionMade(self):
+        connList = [{'host':str(conn.host),'port':int(client.port)} for conn, client in self.manager.clients.items() if client is not self]
+        self.callRemote(SendConns, port=self.manager.port, conns=connList)
+
+    def getConns(self, conns, port):
+        self.port = port
+        for conn in conns:
+            if (conn['host'],conn['port']) not in [(str(c.host),int(client.port)) for c, client in self.manager.clients.items() if client is not self]:
+                reactor.connectTCP(conn['host'],conn['port'],self.manager)
+        return {}
+    SendConns.responder(getConns)
+
 class NetworkManager(protocol.ClientFactory):
-    def __init__(self):
+    def __init__(self, port):
+        self.port = port
         self.clients = {}
         self.turn = 0
         self.cTurn = self.turn + 3

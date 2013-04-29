@@ -18,3 +18,8 @@ class Order(amp.Command):
                     ('x', amp.Float()),
                     ('y', amp.Float())]
        response = [('success', amp.Boolean())]
+
+class SendConns(amp.Command):
+       arguments = [('conns', amp.AmpList([('host', amp.String()),
+                                           ('port',amp.Integer())])),
+                    ('port', amp.Integer())]
