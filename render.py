@@ -2,14 +2,14 @@ import pygame, os
 from pygame.locals import *
 
 class Renderer:
-	def __init__(self,window,map_obstructions,units):
+	def __init__(self,window,map_obstructions,unitManager):
 		self.window = window
 		self.anchor_x = 16
 		self.anchor_y = 16
 		self.scale = 40
 		self.windowSize = (0,0)
 		self.map_obstructions = map_obstructions
-		self.units = units
+		self.unitManager = unitManager
 		self.scrollSpeed = 1
 		
 	def update(self):
@@ -31,7 +31,7 @@ class Renderer:
 			if not (above or below or left or right):
 				pygame.draw.polygon(self.window, pygame.Color(0,0,0), tempPoly)
 
-			for unit in self.units:
+			for unit in self.unitManager.units:
 				x,y = self.toScreenCoord((unit.x,unit.y))
 				radius = int(self.scale*unit.radius)
 				if x > -radius and x < self.windowSize[0]+radius and y > -radius and y < self.windowSize[1]+radius:
