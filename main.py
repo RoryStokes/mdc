@@ -34,12 +34,13 @@ inputManager     = inputs.InputManager(eventManager, renderer)
 renderer.setWindowSize((640,400))
 eventManager.register("keyDown", renderer.moveAnchor)
 eventManager.register("update",unitManager.update)
+eventManager.register("creepAdd", unitManager.spawnWave)
 
 
 unitManager.addPlayer(True)
 unitManager.addPlayer(False)
-unitManager.spawnWave()
 
+eventManager.notify("creepAdd")
 
 while True:
 	for e in pygame.event.get():
