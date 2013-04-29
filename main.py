@@ -1,10 +1,20 @@
 import geometry
 import mapping
-from node import Node
-import unittest
-import render, event, inputs, units
+import render, event, inputs, units, network
 import pygame, sys
 from pygame.locals import *
+from twisted.internet import reactor
+
+networkManager = network.NetworkManager()
+
+host = raw_input("Enter IP to connect to (leave blank to host): ")
+port = 8888
+if host != "":
+	reactor.connectTCP(host, port, networkManager)
+	reactor.run()
+else:
+	reactor.listenTCP(port, networkManager)
+	reactor.run()
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],       #top left inner

@@ -1,12 +1,12 @@
 from twisted.internet import protocol
 from twisted.protocols import amp
-from commands import Order, Done
+from commands import Order, Done, SendConns
 import datetime
 
 class NetworkHandler(amp.AMP):
     def __init__(self, manager):
         self.manager = manager
-        self.done = True
+        self.done    = True
 
     def order(self, turn, x, y):
         if turn <= self.manager.turn:
@@ -23,6 +23,15 @@ class NetworkHandler(amp.AMP):
         self.manager.done[turn][self] = ping
         return {'success': True}
     Done.responder(done)
+
+    def connectionMade(self):
+        connList = [str(ip) for ip, client in self.manager.clients.items()]# if client is not self]
+        print connList
+        self.callRemote(SendConns, conns=connList)
+
+    def getConns(self, conns):
+        print conns
+    SendConns.responder(getConns)
 
 class NetworkManager(protocol.ClientFactory):
     def __init__(self):

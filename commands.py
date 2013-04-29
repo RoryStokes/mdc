@@ -10,3 +10,6 @@ class Order(amp.Command):
                     ('x', amp.Float()),
                     ('y', amp.Float())]
        response = [('success', amp.Boolean())]
+
+class SendConns(amp.Command):
+       arguments = [('conns', amp.ListOf(amp.String))]
