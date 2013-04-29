@@ -7,6 +7,7 @@ class NetworkHandler(amp.AMP):
     def __init__(self, manager):
         self.manager = manager
         self.done    = True
+        self.port    = 8888
 
     def order(self, turn, x, y):
         if turn <= self.manager.turn:
@@ -25,18 +26,20 @@ class NetworkHandler(amp.AMP):
     Done.responder(done)
 
     def connectionMade(self):
-        connList = [{'host':str(conn.host),'port':int(conn.port)} for conn, client in self.manager.clients.items() if client is not self]
-        print "send", connList
-        self.callRemote(SendConns, conns=connList)
+        connList = [{'host':str(conn.host),'port':int(client.port)} for conn, client in self.manager.clients.items() if client is not self]
+        self.callRemote(SendConns, port=self.manager.port, conns=connList)
 
-    def getConns(self, conns):
+    def getConns(self, conns, port):
+        self.port = port
         for conn in conns:
-            reactor.connectTCP(conn['host'],conn['port'],self.manager)
+            if (conn['host'],conn['port']) not in [(str(c.host),int(client.port)) for c, client in self.manager.clients.items() if client is not self]:
+                reactor.connectTCP(conn['host'],conn['port'],self.manager)
         return {}
     SendConns.responder(getConns)
 
 class NetworkManager(protocol.ClientFactory):
-    def __init__(self):
+    def __init__(self, port):
+        self.port = port
         self.clients = {}
         self.turn = 0
         self.cTurn = self.turn + 2

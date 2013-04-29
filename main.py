@@ -5,22 +5,27 @@ import pygame, sys
 from pygame.locals import *
 from twisted.internet import reactor
 
-
 host = raw_input("Enter IP to connect to (leave blank to host): ")
-port = raw_input("Enter port to use (leave blank to use default - 8888): ")
+
+if host != "":
+        remotePort = raw_input("Enter port to connect to (leave blank to use default - 8888): ")
+        if remotePort == "":
+                remotePort = 8888
+        else:
+                remotePort = int(remotePort)
+
+port = raw_input("Enter port to listen on (leave blank to use default - 8888): ")
 if port == "":
 	port = 8888
 else:
 	port = int(port)
 
-networkManager = network.NetworkManager()
+networkManager = network.NetworkManager(port)
 
 if host != "":
-	reactor.connectTCP(host, port, networkManager)
-	reactor.run()
-else:
-	reactor.listenTCP(port, networkManager)
-	reactor.run()
+	reactor.connectTCP(host, remotePort, networkManager)
+reactor.listenTCP(port, networkManager)
+reactor.run()
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],       #top left inner

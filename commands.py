@@ -13,4 +13,5 @@ class Order(amp.Command):
 
 class SendConns(amp.Command):
        arguments = [('conns', amp.AmpList([('host', amp.String()),
-											('port',amp.Integer())]))]
+                                           ('port',amp.Integer())])),
+                    ('port', amp.Integer())]
