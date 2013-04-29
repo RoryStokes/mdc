@@ -1,7 +1,10 @@
 from twisted.internet import protocol, reactor
 from twisted.protocols import amp
-from commands import Order, Done, SendConns
+from commands import Ready, StartGame, Order, Done, SendConns
 import datetime
+
+class SpectatorHandler(amp.AMP):
+    pass
 
 class NetworkHandler(amp.AMP):
     def __init__(self, manager):
@@ -13,6 +16,11 @@ class NetworkHandler(amp.AMP):
         self.manager.ready[self] = True
         return {'time': datetime.datetime.now()}
     Ready.responder(ready)
+
+    def start(self, time, turnLength):
+        self.manager.start[self] = (time, datetime.timedelta(0, turnLength))
+        return {}
+    StartGame.responder(start)
 
     def order(self, turn, x, y):
         if turn <= self.manager.turn:
@@ -26,7 +34,8 @@ class NetworkHandler(amp.AMP):
             return {'success': False}
         if self.manager.done[turn] == None:
             self.manager.done[turn] = {}
-        self.manager.done[turn][self] = ping
+        self.manager.done[turn][self] = datetime.timedelta(0, ping)
+        self.manager.checkDone()
         return {'success': True}
     Done.responder(done)
 
@@ -48,36 +57,39 @@ class NetworkManager(protocol.ClientFactory):
         self.clients = {}
         self.turn = 0
         self.cTurn = self.turn + 3
-        self.time = datetime.datetime.now()
         self.ready = {}
+        self.readyPing = {}
         self.offset = {}
         self.done = {}
         self.orders = {}
         self.ping = {}
         self.readyTime = None
         self.running = False
-        self.readying = True
-        self.starting = True
         self.turnLength = datetime.timedelta(0,0,50)
-        self.timeout = datetime.timedelta(0,1,0)
-        self.turnEnd = self.time + self.turnLength
+        self.timeout = None
+        self.turnEnd = None
 
-    def sendReady(self):
+    def ready(self):
         if self not in self.ready:
-            self.ready[self] = datetime.timedelta(0)
+            self.ready[self] = True
             self.readyTime = datetime.datetime.now()
             for client in self.clients.itervalues():
-                client.callRemote(Ready).addCallback(
-                    lambda result: self.ready[client], self.offset[client] = datetime.now() - self.readyTime, result['time'] - self.readyTime - (datetime.now() - self.readyTime)//2
-                )
+                def callback():
+                    self.readyPing[client] = datetime.datetime.now() - self.readyTime
+                    self.offset[client] = result['time'] - self.readyTime - (datetime.datetime.now() - self.readyTime)//2
+                client.callRemote(Ready).addCallback(callback)
+            self.readying()
 
     def endTurn(self):
         self.cTurn += 1
         self.ping[self.cTurn-1] = datetime.timedelta(0,0,50)
         for client in self.clients.itervalues():
-            client.callRemote(Done, turn=self.cTurn-1, ping=self.ping[self.cTurn-1])
+            client.callRemote(Done, turn=self.cTurn-1, ping=self.ping[self.cTurn-1].to_seconds())
+        self.timeout = reactor.callLater(1, self.onTimeout)
+        self.checkDone()
 
     def beginTurn(self):
+        self.running = True
         if turn in self.done:
             del self.done[turn]
         self.turn += 1
@@ -85,6 +97,20 @@ class NetworkManager(protocol.ClientFactory):
             for o in self.orders:
                 self.doOrder(*o)
             del self.orders[turn]
+        reactor.callLater(self.turnLength, self.endTurn)
+
+    def checkDone(self):
+        if self.turn-1 in self.done and len(self.done[self.turn-1]) == len(self.clients):
+            latency = max(max(self.done[self.turn-1].itervalues()), self.ping[self.turn-1])
+            self.turnLength = (9*self.turnLength + maxLatency + latency // 10) // 10
+            self.turnEnd = datetime.datetime.now() + self.turnLength
+            if self.timeout != None:
+                self.timeout.stop()
+                self.timeout = None
+            self.beginTurn()
+
+    def onTimeout(self):
+        print("Timeout")
 
     def sendOrder(self, x, y):
         if self.running:
@@ -100,42 +126,31 @@ class NetworkManager(protocol.ClientFactory):
     def doOrder(self, client, x, y):
         print("Do order", client, x, y)
     
-    def update(self):
-        newTime = datetime.datetime.now()
-        dt = newTime - self.time
-        self.time = newTime
-        
-        if not self.running:
-            if self.readying:
-                if len(self.ready) > len(self.clients):
-                    latency = max(self.ready.itervalues())
-                    self.start[self] = (self.time + 5*latency, latency+latency//10)
-                    for client in self.clients.itervalues():
-                        client.callRemote(StartGame, time=self.time + 5*latency, turnLength=latency+latency//10) 
-                    self.readying = False
-            elif self.starting:
-                if len(self.start) > len(self.clients):
-                    self.turnLength = max([x[1] for x in self.start])
-                    self.turnEnd = max([x[0] for x in self.start])
-                    self.starting = False
-            elif self.time >= self.turnEnd:
-                self.beginTurn()
-                self.running = True
+    def readying(self):
+        if len(self.ready) > len(self.clients):
+            latency = max(self.readyPing.itervalues())
+            now = datetime.datetime.now()
+            self.start[self] = (now + 5*latency, latency+latency//10)
+            for client in self.clients.itervalues():
+                client.callRemote(StartGame, time=now + 5*latency, turnLength=(latency+latency//10).to_seconds()) 
+            reactor.callLater(0.1, self.starting)
         else:
-            if self.turn-1 in self.done and len(self.done[self.turn-1]) == len(self.clients):
-                latency = max(max(self.done[self.turn-1].itervalues()), self.ping[self.turn-1])
-                self.turnLength = (9*self.turnLength + maxLatency + latency // 10) // 10
-                self.turnEnd = self.time + self.turnLength
-                self.beginTurn()
-                    
-            if self.time >= self.turnEnd:
-                if self.turn < self.cTurn-2:
-                    print("Timeout")
-                elif self.turn == self.cTurn-2:
-                    self.endTurn()
-                    self.turnEnd += self.timeout
-        
+            reactor.callLater(0.1, self.readying)
+
+    def starting(self):
+        if len(self.start) > len(self.clients):
+            self.turnLength = max([x[1] for client,x in self.start.iter()])
+            self.turnEnd = max([x[0]-self.offset[client] for client,x in self.start.iter()])
+            reactor.callLater(self.turnEnd - datetime.datetime.now(), self.beginTurn)
+        else:
+            reactor.callLater(0.1, self.starting)
+
     def buildProtocol(self, addr):
-        newClient = NetworkHandler(self)
-        self.clients[addr] = newClient
+        if len(self.clients) < self.numPlayers:
+            newClient = NetworkHandler(self)
+            self.clients[addr] = newClient
+            if len(self.clients) == self.numPlayers:
+                self.ready()
+        else:
+            newClient = SpectatorClient()
         return newClient
