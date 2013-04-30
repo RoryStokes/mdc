@@ -6,14 +6,18 @@ class Renderer:
 		self.window = window
 		self.anchor_x = 16
 		self.anchor_y = 16
+		self.pan_x = 0
+		self.pan_y = 0
 		self.scale = 40
 		self.windowSize = (0,0)
 		self.map_obstructions = map_obstructions
 		self.unitManager = unitManager
 		self.scrollSpeed = 1
-		
+
 	def update(self):
 		#Draw background
+		self.anchor_x += self.pan_x
+		self.anchor_y += self.pan_y
 		self.window.fill(pygame.Color(80,80,80))
 		mapArea = pygame.Rect(-(self.anchor_x)*self.scale + self.windowSize[0]/2,-(self.anchor_y)*self.scale + self.windowSize[1]/2, 32*self.scale, 32*self.scale)
 
@@ -68,6 +72,10 @@ class Renderer:
 
 	def setWindowSize(self,(x,y)):
 		self.windowSize = (x,y)
+
+	def setPan(self,(x,y)):
+		self.pan_x = x
+		self.pan_y = y
 
 	def moveAnchor(self, dir):
 		if dir == "up":

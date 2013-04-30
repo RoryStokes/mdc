@@ -6,13 +6,13 @@ from pygame.locals import *
 from twisted.internet import reactor
 
 def update(n):
-        for e in pygame.event.get():
-                if e.type == QUIT:
+	for e in pygame.event.get():
+		if e.type == QUIT:
 			pygame.quit()
 			sys.exit()
 		elif e.type == VIDEORESIZE:
 			pygame.display.set_mode((e.size),pygame.RESIZABLE)
-			renderer.setWindowSize(e.size)
+			eventManager.notify("windowResize", e.size)
 		elif e.type == MOUSEBUTTONDOWN:
 			inputManager.registerClick(e.pos, e.button, True)
 		elif e.type == MOUSEBUTTONUP:
@@ -22,29 +22,29 @@ def update(n):
 		elif e.type == KEYUP:
 			inputManager.registerKey(e.key, False)
 
-        eventManager.notify("update")
-        eventManager.update()
-        renderer.update()
+	eventManager.notify("update")
+	eventManager.update()
+	renderer.update()
 	pygame.display.update()
-        for k in creepTime:
-                creepTime[k] -= 1
-                if creepTime[k] == 0:
-                        if k == -1:
-                                eventManager.notify("creepAdd")
-                                creepTime[-1] = 300
-                        else:
-                                unitManager.addPlayer(isGood[k],k)
-        if n > 1:
-                reactor.callLater(0.03, update, n-1)
+	for k in creepTime:
+		creepTime[k] -= 1
+		if creepTime[k] == 0:
+			if k == -1:
+				eventManager.notify("creepAdd")
+				creepTime[-1] = 300
+			else:
+				unitManager.addPlayer(isGood[k],k)
+	if n > 1:
+		reactor.callLater(0.03, update, n-1)
 
 host = raw_input("Enter IP to connect to (leave blank to host): ")
 
 if host != "":
-        remotePort = raw_input("Enter port to connect to (leave blank to use default - 8888): ")
-        if remotePort == "":
-                remotePort = 8888
-        else:
-                remotePort = int(remotePort)
+		remotePort = raw_input("Enter port to connect to (leave blank to use default - 8888): ")
+		if remotePort == "":
+				remotePort = 8888
+		else:
+				remotePort = int(remotePort)
 
 port = raw_input("Enter port to listen on (leave blank to use default - 8888): ")
 if port == "":
@@ -75,21 +75,25 @@ window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
 pygame.display.set_caption("MDC")
 
 def respawnPlayer(id):
-     creepTime[id] = 300   
+	 creepTime[id] = 300   
 
 unitManager      = units.UnitManager(eventManager, map_board, respawnPlayer)
 renderer         = render.Renderer(window, map_obstructions, unitManager)
 inputManager     = inputs.InputManager(eventManager, renderer)
-renderer.setWindowSize((640,400))
+eventManager.register("windowResize", renderer.setWindowSize)
+eventManager.register("setPan", renderer.setPan)
 eventManager.register("keyDown", renderer.moveAnchor)
+eventManager.register("windowResize", inputManager.setWindowSize)
+eventManager.register("update",inputManager.update)
 eventManager.register("update",unitManager.update)
 eventManager.register("creepAdd", unitManager.spawnWave)
+eventManager.notify("windowResize",(640,400))
 
 isGood = {}
 
 def addPlayer(good, id):
-        unitManager.addPlayer(good, id)
-        isGood[id] = good
+		unitManager.addPlayer(good, id)
+		isGood[id] = good
 
 players = 2
 networkManager = network.NetworkManager(players, port, update, unitManager.moveOrder, addPlayer)
@@ -97,7 +101,7 @@ networkManager = network.NetworkManager(players, port, update, unitManager.moveO
 if host != "":
 	reactor.connectTCP(host, remotePort, networkManager)
 else:
-        networkManager.server = True
+		networkManager.server = True
 reactor.listenTCP(port, networkManager)
 
 eventManager.register("rightClick", networkManager.sendOrder)
