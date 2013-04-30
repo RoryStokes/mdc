@@ -137,6 +137,8 @@ class Board(object):
 		
 		# Handle special/common cases
 		if node_a == node_b: return [node_a]
+                if node_b.x < 0.0 or node_b.x > 32.0 or node_b.y < 0.0 or node_b.y > 32.0:
+                        return None
                 for p in self.polygons:
                         if p.contains_node_in_area(node_a) or p.contains_node_in_area(node_b):
                                 return None
