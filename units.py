@@ -1,25 +1,26 @@
 from entity import Unit
 from node import Node
 from math import sqrt
+import pygame
 
 class UnitManager:
 	def __init__(self,eventManager,map_board,respawn):
 		self.event = eventManager
 		self.units = []
 		self.map   = map_board
-                
-                self.players = {}
-                self.event.register("moveOrder", self.moveOrder)
+				
+		self.players = {}
+		self.event.register("moveOrder", self.moveOrder)
 
 		self.spawnPoints  = [Node(2,2),Node(30,30)]
 		self.bottomCorner = [Node(2,24),Node(8,30)]
 		self.topCorner    = [Node(24,2),Node(30,8)]
 
-                self.respawn = respawn
+		self.respawn = respawn
 
-        def moveOrder(self, id, x, y):
-                if id in self.players:
-                        self.players[id].pathTo((x, y))
+	def moveOrder(self, id, x, y):
+		if id in self.players:
+			self.players[id].pathTo((x, y))
 
 	def update(self):
 		dead = []
@@ -31,20 +32,22 @@ class UnitManager:
 				unit.update()
 
 		for i in dead:
-                        if i.type == 0:
-                                index = -1
-                                for id, u in self.players.iteritems():
-                                        if u == i:
-                                                self.respawn(id)
-                                                index = id
-                                                break
-                                if index != -1:
-                                        del self.players[index]
-                        elif i.type == 2:
-                                if i.good:
-                                        print "BAD WINS"
-                                else:
-                                        print "GOOD WINS"
+			if i.type == 0:
+				index = -1
+				for id, u in self.players.iteritems():
+					if u == i:
+						self.respawn(id)
+						index = id
+						break
+				if index != -1:
+					del self.players[index]
+				elif i.type == 2:
+					if i.good:
+						print "BAD WINS"
+					else:
+						print "GOOD WINS"
+
+					pygame.event.post( pygame.event.Event(EXIT))
 			self.units.remove(i)
 
 
@@ -82,7 +85,7 @@ class UnitManager:
 		else:
 			pos=Node(self.spawnPoints[1].x - 3.5, self.spawnPoints[1].y - 3.5)
 		player = Unit(pos,good,0,self.map)
-                self.players[id] = player
+		self.players[id] = player
 		self.addUnit(player)
 
 	def addCreep(self,good,top):
@@ -113,4 +116,4 @@ class UnitManager:
 			pos=self.spawnPoints[1]
 		ancient = Unit(pos,good,2,self.map)
 		self.addUnit(ancient)
-                
+				

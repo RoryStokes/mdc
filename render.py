@@ -14,8 +14,10 @@ class Renderer:
 		
 	def update(self):
 		#Draw background
-		self.window.fill(pygame.Color(255,255,255))
+		self.window.fill(pygame.Color(80,80,80))
+		mapArea = pygame.Rect(-(self.anchor_x)*self.scale + self.windowSize[0]/2,-(self.anchor_y)*self.scale + self.windowSize[1]/2, 32*self.scale, 32*self.scale)
 
+		pygame.draw.rect(self.window,pygame.Color(255,255,255),mapArea)
 		#Draw map tiles
 		for poly in self.map_obstructions:
 			tempPoly = []
@@ -35,12 +37,23 @@ class Renderer:
 				x,y = self.toScreenCoord((unit.x,unit.y))
 				radius = int(self.scale*unit.radius)
 				if x > -radius and x < self.windowSize[0]+radius and y > -radius and y < self.windowSize[1]+radius:
+					baseColour = pygame.Color(80,80,80)
 					if unit.good:
-						color = pygame.Color(0,255,0)
+						teamColour = pygame.Color(0,255,0)
 					else:
-						color = pygame.Color(255,0,0)
-					pygame.draw.circle(self.window, color, (x,y), radius)
-
+						teamColour = pygame.Color(255,0,0)
+					if unit.type == 0:
+						pygame.draw.circle(self.window, baseColour, (x,y), radius)
+						if radius > 5:
+							pygame.draw.circle(self.window, teamColour, (x,y), radius-5)
+					elif unit.type == 1:
+						pygame.draw.circle(self.window, teamColour, (x,y), radius)
+					elif unit.type == 2:
+						pygame.draw.circle(self.window, baseColour, (x,y), radius)
+						if radius > 5:
+							pygame.draw.circle(self.window, teamColour, (x,y), radius-5)
+							if radius > 10:
+								pygame.draw.circle(self.window, baseColour, (x,y), radius-10)
 
 	def toGlobalCoord(self,(x,y)):
 		dx = (x - self.windowSize[0]/2.0) * (1.0/self.scale)
