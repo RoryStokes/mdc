@@ -79,7 +79,7 @@ class NetworkHandler(amp.AMP):
     MeGood.responder(meGood)
 
 class NetworkManager(protocol.ClientFactory):
-    def __init__(self, numPlayers, port, update, doOrder, spawnPlayer):
+    def __init__(self, numPlayers, port, init, update, doOrder, spawnPlayer):
         self.numPlayers = numPlayers
         self.port = port
         self.doOrder = doOrder
@@ -101,6 +101,7 @@ class NetworkManager(protocol.ClientFactory):
         self.turnLength = datetime.timedelta(0,0,0,60)
         self.timeout = None
         self.turnEnd = None
+        self.init = init
         self.mainLoop = update
         self.server = False
         self.spawn = spawnPlayer
@@ -114,6 +115,7 @@ class NetworkManager(protocol.ClientFactory):
 
     def setReady(self):
         if self not in self.ready:
+            self.init()
             self.ready[self] = True
             self.readyTime = datetime.datetime.now(UTC())
             for client in self.clients.itervalues():

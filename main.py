@@ -5,6 +5,27 @@ import pygame, sys
 from pygame.locals import *
 from twisted.internet import reactor
 
+clock = None
+creepTime     = {-1: 1}
+window = None
+
+def init():
+	pygame.init()
+	clock         = pygame.time.Clock()
+	window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
+	pygame.display.set_caption("MDC")
+
+	renderer.window = window
+
+	eventManager.register("windowResize", renderer.setWindowSize)
+	eventManager.register("setPan", renderer.setPan)
+	eventManager.register("keyDown", renderer.moveAnchor)
+	eventManager.register("windowResize", inputManager.setWindowSize)
+	eventManager.register("update",inputManager.update)
+	eventManager.register("update",unitManager.update)
+	eventManager.register("creepAdd", unitManager.spawnWave)
+	eventManager.notify("windowResize",(640,400))
+
 def update(n):
 	for e in pygame.event.get():
 		if e.type == QUIT:
@@ -73,27 +94,14 @@ map_board = mapping.Board()
 for poly in map_obstructions:
 	map_board.add( geometry.Polygon(*poly, ccw=False) )
 
-pygame.init()
-clock         = pygame.time.Clock()
-eventManager  = event.Event()
-creepTime     = {-1: 1}
-window        = pygame.display.set_mode((640,400),pygame.RESIZABLE)
-pygame.display.set_caption("MDC")
-
 def respawnPlayer(id):
 	 creepTime[id] = 300   
 
-unitManager      = units.UnitManager(eventManager, map_board, respawnPlayer)
-renderer         = render.Renderer(window, map_obstructions, unitManager)
-inputManager     = inputs.InputManager(eventManager, renderer)
-eventManager.register("windowResize", renderer.setWindowSize)
-eventManager.register("setPan", renderer.setPan)
-eventManager.register("keyDown", renderer.moveAnchor)
-eventManager.register("windowResize", inputManager.setWindowSize)
-eventManager.register("update",inputManager.update)
-eventManager.register("update",unitManager.update)
-eventManager.register("creepAdd", unitManager.spawnWave)
-eventManager.notify("windowResize",(640,400))
+eventManager  = event.Event()
+unitManager   = units.UnitManager(eventManager, map_board, respawnPlayer)
+
+renderer      = render.Renderer(None, map_obstructions, unitManager)
+inputManager  = inputs.InputManager(eventManager, renderer)
 
 isGood = {}
 
@@ -102,7 +110,7 @@ def addPlayer(good, id):
 		isGood[id] = good
 
 players = 2
-networkManager = network.NetworkManager(players, port, update, unitManager.moveOrder, addPlayer)
+networkManager = network.NetworkManager(players, port, init, update, unitManager.moveOrder, addPlayer)
 
 if host != "":
 	reactor.connectTCP(host, remotePort, networkManager)
@@ -114,5 +122,7 @@ eventManager.register("rightClick", networkManager.sendOrder)
 
 unitManager.addAncient(True)
 unitManager.addAncient(False)
+
+print "Please wait, connecting to other player..."
 
 reactor.run()
