@@ -40,17 +40,23 @@ def update(n):
 host = raw_input("Enter IP to connect to (leave blank to host): ")
 
 if host != "":
-		remotePort = raw_input("Enter port to connect to (leave blank to use default - 8888): ")
-		if remotePort == "":
-				remotePort = 8888
-		else:
-				remotePort = int(remotePort)
+	remotePort = raw_input("Enter port to connect to (leave blank to use default - 8888): ")
+	if remotePort == "":
+		remotePort = 8888
+	else:
+		remotePort = int(remotePort)
 
-port = raw_input("Enter port to listen on (leave blank to use default - 8888): ")
-if port == "":
-	port = 8888
+	port = raw_input("Enter port to listen on (leave blank to use default - 8889): ")
+	if port == "":
+		port = 8889
+	else:
+		port = int(port)
 else:
-	port = int(port)
+	port = raw_input("Enter port to listen on (leave blank to use default - 8888): ")
+	if port == "":
+		port = 8888
+	else:
+		port = int(port)
 
 map_obstructions = [
 [(4, 10), (10, 4), (10, 10)],       #top left inner
@@ -101,7 +107,7 @@ networkManager = network.NetworkManager(players, port, update, unitManager.moveO
 if host != "":
 	reactor.connectTCP(host, remotePort, networkManager)
 else:
-		networkManager.server = True
+	networkManager.server = True
 reactor.listenTCP(port, networkManager)
 
 eventManager.register("rightClick", networkManager.sendOrder)
