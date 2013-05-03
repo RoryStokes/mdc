@@ -4,6 +4,7 @@ import render, event, inputs, units, network
 import pygame, sys
 from pygame.locals import *
 from twisted.internet import reactor
+import zope.interface
 
 clock = None
 creepTime     = {-1: 1}
